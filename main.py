@@ -10,11 +10,10 @@ TEST_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/test'
 
 def train_model_on_data():
     training = datalib.load_dataset(TRAINING_PATH)
-    val_ds = datalib.load_validation('E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/train')
-    model = mdl.model_create_xception(input_shape=datalib.image_size + (1,), num_classes=2)
-    n = datalib.image_size + (3,)
-    print(n)
-    epochs = 7
+    val_ds = datalib.load_validation(TRAINING_PATH)
+    model = mdl.model_create_adv_xception(input_shape=datalib.image_size + (1,))
+    epochs = 25
+
     # keras.backend.clear_session()
     callbacks = [
         keras.callbacks.ModelCheckpoint("save_at_{epoch}.h5"),
@@ -22,7 +21,11 @@ def train_model_on_data():
     model.compile(
         optimizer=keras.optimizers.Adam(1e-3),
         loss="binary_crossentropy",
-        metrics=["accuracy"],
+        metrics=["accuracy", "AUC",
+                 keras.metrics.TruePositives,
+                 keras.metrics.FalsePositives,
+                 keras.metrics.TrueNegatives,
+                 keras.metrics.FalseNegatives]
     )
     model.fit(
         training, epochs=epochs, callbacks=callbacks, validation_data=val_ds,

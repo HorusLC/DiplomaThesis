@@ -1,23 +1,13 @@
-
 from tensorflow import keras as krs
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import cv2 as cv
-
 
 image_size = (256, 256)
 batch_size = 8
 
-def add_augmentation():
-   data = krs.Sequential([
-       krs.layers.experimental.preprocessing.RandomFlip(mode="horizontal"),
-       krs.layers.experimental.preprocessing.RandomZoom(height_factor=(-0.05, -0.1),
-                                                        width_factor=(-0.05, -0.1)),
-       krs.layers.experimental.preprocessing.RandomTranslation(height_factor=(-0.05, 0.05),
-                                                               width_factor=(-0.05, 0.05))
+# def add_augmentation():
 
-   ]
 
-   )
 
 def load_validation(path):
     validation_data = krs.preprocessing.image_dataset_from_directory(
@@ -33,7 +23,6 @@ def load_validation(path):
 
 
 def load_dataset(path):
-
     loaded = krs.preprocessing.image_dataset_from_directory(
         path,
         labels='inferred',
