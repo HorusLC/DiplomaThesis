@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import matplotlib.pyplot as plotter
 import numpy
-image_size = (256, 256)
-batch_size = 8
+image_size = (128, 128) #180
+batch_size = 32
 
 # def add_augmentation():
 
@@ -56,13 +56,14 @@ def plot_history_loss_func(history):
 def load_validation(path):
     validation_data = krs.preprocessing.image_dataset_from_directory(
         path,
-        color_mode='grayscale',
+        color_mode='rgb',
         validation_split=0.2,
         subset='validation',
         seed=1333,
         labels='inferred',
         image_size=image_size,
         batch_size=batch_size,
+        label_mode='binary'
     )
     return validation_data
 
@@ -71,13 +72,14 @@ def load_dataset(path):
     loaded = krs.preprocessing.image_dataset_from_directory(
         path,
         labels='inferred',
-        color_mode='grayscale',
+        color_mode='rgb',
         batch_size=batch_size,
         image_size=image_size,
         shuffle=True,
         seed=1333,
         validation_split=0.2,
-        subset='training'
+        subset='training',
+        label_mode='binary'
     )
     return loaded
 
@@ -92,8 +94,10 @@ def load_test_data(path):
         shuffle=True,
         seed=1333,
         validation_split=0,
+        label_mode='binary'
     )
     return loaded
+
 
 def load_viz(path):
     validation_data = krs.preprocessing.image_dataset_from_directory(
@@ -106,10 +110,13 @@ def load_viz(path):
         batch_size=batch_size,
         label_mode='binary'
     )
-    return  validation_data
-
-
-
+    plt.figure(figsize=(10, 10))
+    for images, labels in validation_data.take(1):
+        for i in range(8):
+            ax = plt.subplot(3, 3, i + 1)
+            plt.imshow(images[i].numpy().astype("uint8"))
+            plt.title(int(labels[i]))
+            plt.axis("off")
 
 
 
