@@ -17,11 +17,11 @@ def train_vgg():
     training = datalib.load_dataset(TRAINING_PATH)
     val_ds = datalib.load_validation(TRAINING_PATH)
     model = mdl.model_create_vgg16(input_shape=(128, 128, 3))
-    epochs = 50
+    epochs = 20
     callbacks = [
-        keras.callbacks.ModelCheckpoint("vgg2/save_at_{epoch}.h5",save_best_only=True),
+        keras.callbacks.ModelCheckpoint("propervggdrop/save_at_{epoch}.h5", ),
         # keras.callbacks.CSVLogger(filename="xception_log.csv", separator=',', append=True)
-        keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='auto')
+        #keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='auto')
     ]
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=0.0001),
@@ -35,10 +35,10 @@ def train_vgg():
     history = model.fit(
         training, epochs=epochs, callbacks=callbacks, validation_data=val_ds,
     )
-    # dump results binary andjson
-    with open('vgg2/rms_history', mode='wb') as history_file:
+    # dump results binary and json
+    with open('propervggdrop/adam_history', mode='wb') as history_file:
         pickle.dump(history.history, history_file)
-    with open('vgg2/rms_hist.json', mode='w') as file:
+    with open('propervggdrop/adam_hist.json', mode='w') as file:
         dataframe = panda.DataFrame(history.history)
         dataframe.to_json(file)
 
@@ -85,6 +85,7 @@ def train_model_on_data():
 
 def eval_single_model(test_data, path):
     mod = keras.models.load_model(path)
+    mod.summary();
     print(str(mod.evaluate(test_data, verbose=1)))
 
 
@@ -121,10 +122,18 @@ def continue_training(from_epoch, to_epoch, loading_path, saving_path, hist_path
 
 
 if __name__ == '__main__':
-    #train_vgg()
-    # datalib.load_dataset_with_visualization(TRAINING_PATH)
     keras.backend.clear_session()
     train_vgg()
+    # datalib.load_dataset_with_visualization(TRAINING_PATH)
+
+
+   # test_dat = datalib.load_test_data(TEST_PATH)
+    #train_dat = datalib.load_dataset(TRAINING_PATH)
+    #print('hello')
+    #mod = mdl.model_create_vgg16(input_shape=(128, 128, 3))
+    #mod.summary()
+    # eval_single_model(test_dat, 'vgg2/save_at_39.h5')
+    # train_vgg()
     # continue_training(from_epoch=100,
     #                   to_epoch=130,
     #                   saving_path='vgg/save_at_{epoch}.h5',

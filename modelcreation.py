@@ -107,13 +107,16 @@ def model_create_xception(input_shape, num_classes):
 
 def model_create_vgg16(input_shape):
     base_mdl = krs.applications.vgg16.VGG16(include_top=False, input_shape=input_shape, weights='imagenet')
+    base_mdl.summary()
     base_mdl.trainable = False
     inputs = krs.Input(input_shape)
     inp = data_augm(inputs)
     inp = krs.applications.vgg16.preprocess_input(inp)
     val = base_mdl(inp, training=False)
-    val = krs.layers.GlobalAveragePooling2D()(val)
-    val= krs.layers.Dropout(0.3)(val)
+    #val = krs.layers.GlobalAveragePooling2D()(val)
+    val = krs.layers.Flatten()(val)
+    val = krs.layers.Dense(2048, activation="relu")(val)
+    val = krs.layers.Dense(2048, activation="relu")(val)
+    #val = krs.layers.Dropout(0.3)(val)
     outputs = krs.layers.Dense(1, activation='sigmoid')(val)
-
     return krs.Model(inputs, outputs)
