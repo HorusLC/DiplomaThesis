@@ -8,23 +8,37 @@ import resultsplotter as resplot
 import json as json
 import matplotlib as plotter
 import pandas as panda
+from keras.callbacks import TensorBoard
+import inspect as inspect_tool
 
-TRAINING_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/train'
-TEST_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/test'
+#TRAINING_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/train' old paths
+#TEST_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/test' old paths
+TRAINING_PATH = 'E:/pycharmProjects/DiplomaThesis/dataset/train'
+TEST_PATH = 'E:/pycharmProjects/DiplomaThesis/dataset/test'
+VAL_PATH = 'E:/pycharmProjects/DiplomaThesis/dataset/val'
 
 
-def train_vgg():
+def train_vgg(experiment_folder, learning_rate, num_epochs):
+    identfier = experiment_folder + ti.strftime('-%Y-%m-%d-%H%M%S')
+    tensorboard = TensorBoard(log_dir='logs/{}'.format(identfier))
     training = datalib.load_dataset(TRAINING_PATH)
-    val_ds = datalib.load_validation(TRAINING_PATH)
+    val_ds = datalib.load_dataset(VAL_PATH)
     model = mdl.model_create_vgg16(input_shape=(128, 128, 3))
-    epochs = 20
+    folder_path = datalib.init_model_folder(dir_name=experiment_folder,
+                                            optimizer="adam",
+                                            lr=str(learning_rate),
+                                            image_dimensions='128,128,3',
+                                            architecture=inspect_tool.getsource(
+                                                mdl.model_create_vgg16))
     callbacks = [
-        keras.callbacks.ModelCheckpoint("propervggdrop/save_at_{epoch}.h5", ),
+        keras.callbacks.ModelCheckpoint(folder_path + "/save_at_{epoch}.h5", ),
+        tensorboard,
+        #keras.callbacks.LearningRateScheduler(mdl.lr_scheduler, verbose=1)
         # keras.callbacks.CSVLogger(filename="xception_log.csv", separator=',', append=True)
-        #keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, mode='auto')
+        #keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, min_delta=0.005, mode='auto')
     ]
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=0.0001),
+        optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
         loss="binary_crossentropy",
         metrics=["accuracy", "AUC",
                  keras.metrics.TruePositives(),
@@ -33,18 +47,18 @@ def train_vgg():
                  keras.metrics.FalseNegatives()]
     )
     history = model.fit(
-        training, epochs=epochs, callbacks=callbacks, validation_data=val_ds,
+        training, epochs=num_epochs, callbacks=callbacks, validation_data=val_ds,
     )
     # dump results binary and json
-    with open('propervggdrop/adam_history', mode='wb') as history_file:
+    with open(folder_path + '/adam_history', mode='wb') as history_file:
         pickle.dump(history.history, history_file)
-    with open('propervggdrop/adam_hist.json', mode='w') as file:
+    with open(folder_path + '/adam_hist.json', mode='w') as file:
         dataframe = panda.DataFrame(history.history)
-        dataframe.to_json(file)
+        dataframe.to_json(file, indent=4)
 
     # plot after all epochs
-    datalib.plot_history_accuracy(history)
-    datalib.plot_history_loss_func(history)
+    datalib.plot_history_accuracy(history, folder_path)
+    datalib.plot_history_loss_func(history, folder_path)
 
 
 def train_model_on_data():
@@ -59,7 +73,7 @@ def train_model_on_data():
         # keras.callbacks.CSVLogger(filename="xception_log.csv", separator=',', append=True)
     ]
     model.compile(
-        optimizer=keras.optimizers.RMSprop(learning_rate=0.0001),
+        optimizer=keras.optimizers.RMSprop(learning_rate=0.001),
         loss="binary_crossentropy",
         metrics=["accuracy", "AUC",
                  keras.metrics.TruePositives(),
@@ -85,7 +99,7 @@ def train_model_on_data():
 
 def eval_single_model(test_data, path):
     mod = keras.models.load_model(path)
-    mod.summary();
+    mod.summary()
     print(str(mod.evaluate(test_data, verbose=1)))
 
 
@@ -123,16 +137,22 @@ def continue_training(from_epoch, to_epoch, loading_path, saving_path, hist_path
 
 if __name__ == '__main__':
     keras.backend.clear_session()
-    train_vgg()
+    #train_vgg('vgg_v4', 0.00001, 30)
+    #test_data = datalib.load_dataset(TEST_PATH)
+    #eval_single_model(test_data, path='new_ds/vgg_initial/save_at_3.h5')
+   # resplot.plot_history('vggadamepslower/adam_hist.json', max_x=162, interval=5)
+   # continue_training(80, 160, 'vggadamepslower/save_at_80.h5', 'vggadamepslower/save_at_{epoch}.h5',
+    #                 hist_path='vggadamepslower/adam_hist.json')
+    #train_vgg()
     # datalib.load_dataset_with_visualization(TRAINING_PATH)
-
-
-   # test_dat = datalib.load_test_data(TEST_PATH)
+    #datalib.split_data(input_data='E:/pycharmProjects/DiplomaThesis/dataset2/train',
+     #                  data_ratio=(0.8, 0.2))
+  #  test_data = datalib.load_test_data(TEST_PATH)
     #train_dat = datalib.load_dataset(TRAINING_PATH)
     #print('hello')
     #mod = mdl.model_create_vgg16(input_shape=(128, 128, 3))
     #mod.summary()
-    # eval_single_model(test_dat, 'vgg2/save_at_39.h5')
+   # eval_single_model(test_data, 'vggtransfer512/save_at_15.h5')
     # train_vgg()
     # continue_training(from_epoch=100,
     #                   to_epoch=130,
@@ -140,7 +160,7 @@ if __name__ == '__main__':
     #                   loading_path='vgg/save_at_100.h5',
     #                   hist_path='vgg/rms_hist.json')
     #
-    # resplot.plot_history('vgg/rms_hist.json', max_x=130)
+    resplot.plot_history('new_ds/vgg_2/adam_hist.json',interval=1, max_x=30)
 
     # train_model_on_data()
     # t_data = datalib.load_test_data(TEST_PATH)

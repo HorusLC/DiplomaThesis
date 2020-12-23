@@ -1,7 +1,7 @@
 
 from tensorflow import keras as krs
 
-
+MIN_LEARNING_VALUE = 0.0000001
 data_augm = krs.Sequential([
     krs.layers.experimental.preprocessing.RandomFlip(mode="horizontal"),
     krs.layers.experimental.preprocessing.RandomZoom(height_factor=(-0.05, -0.1),
@@ -105,9 +105,18 @@ def model_create_xception(input_shape, num_classes):
     return krs.Model(inputs, outputs)
 
 
+def lr_scheduler(epoch, lr):
+    if epoch < 5 or lr < MIN_LEARNING_VALUE:
+        return lr
+    elif 5 <= epoch < 15:
+        return lr*0.9
+    else:
+        return lr*0.97
+
+
 def model_create_vgg16(input_shape):
     base_mdl = krs.applications.vgg16.VGG16(include_top=False, input_shape=input_shape, weights='imagenet')
-    base_mdl.summary()
+    #base_mdl.summary()
     base_mdl.trainable = False
     inputs = krs.Input(input_shape)
     inp = data_augm(inputs)
@@ -116,6 +125,7 @@ def model_create_vgg16(input_shape):
     #val = krs.layers.GlobalAveragePooling2D()(val)
     val = krs.layers.Flatten()(val)
     val = krs.layers.Dense(2048, activation="relu")(val)
+    val = krs.layers.Dropout(0.1, seed=1333)(val)
     val = krs.layers.Dense(2048, activation="relu")(val)
     #val = krs.layers.Dropout(0.3)(val)
     outputs = krs.layers.Dense(1, activation='sigmoid')(val)
