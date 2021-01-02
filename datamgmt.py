@@ -100,7 +100,7 @@ def load_dataset(path):
     loaded = krs.preprocessing.image_dataset_from_directory(
         path,
         labels='inferred',
-        color_mode='rgb',
+        color_mode='grayscale',
         batch_size=batch_size,
         image_size=image_size,
         shuffle=True,
