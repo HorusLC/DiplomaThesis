@@ -176,19 +176,19 @@ def train_inception(experiment_folder, learning_rate, num_epochs):
     with open(folder_path + '/adam_hist.json', mode='w') as file:
         dataframe = panda.DataFrame(history.history)
         dataframe.to_json(file, indent=4)
-    datalib.plot_history_accuracy(history)
-    datalib.plot_history_loss_func(history)
+    datalib.plot_history_accuracy(history, path=folder_path)
+    datalib.plot_history_loss_func(history, path=folder_path)
 
 
 if __name__ == '__main__':
     keras.backend.clear_session()
-    #train_inception('inception_v2', 0.0001, 30)
+    #train_inception('inception_v12_big', 0.0001, 50)
     #train_vgg('vgg_test', 0.000001, 60)
-    # test_data = datalib.load_dataset(TEST_PATH)
-    # eval_single_model(test_data, path='new_ds/vgg_initial/save_at_3.h5')
-    resplot.plot_history('new_ds/inception_v2/adam_hist.json', max_x=31, interval=2)
-    # continue_training(60, 90, 'new_ds/vgg_v8reg2/save_at_60.h5', 'new_ds/vgg_v8reg2/save_at_{epoch}.h5',
-    #                   hist_path='new_ds/vgg_v8reg2/adam_hist.json')
+   # test_data = datalib.load_dataset(TEST_PATH)
+    #eval_single_model(test_data, path='new_ds/inception_v2/save_at_79.h5')
+    resplot.plot_history('new_ds/inception_v2/adam_hist.json', max_x=101, interval=5)
+   # continue_training(80, 100, 'new_ds/inception_v2/save_at_80.h5', 'new_ds/inception_v2/save_at_{epoch}.h5',
+    #                  hist_path='new_ds/inception_v2/adam_hist.json')
     # train_vgg()
     # datalib.load_dataset_with_visualization(TRAINING_PATH)
     # datalib.split_data(input_data='E:/pycharmProjects/DiplomaThesis/dataset2/train',
