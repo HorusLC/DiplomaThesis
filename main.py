@@ -182,13 +182,21 @@ def train_inception(experiment_folder, learning_rate, num_epochs):
 
 if __name__ == '__main__':
     keras.backend.clear_session()
-    #train_inception('inception_v12_big', 0.0001, 50)
+    #train_inception('lr_00001', 0.00001, 100)
+    #history_complex = panda.read_json('new_ds/inception_v15big/adam_hist.json')
+    history_base = panda.read_json('new_ds/inception_v2/adam_hist.json')
+    #history_small = panda.read_json('new_ds/inception_v14small/adam_hist.json')
+    #hist_dict = {'complex': history_complex, 'simple': history_small}
+    history_lr_reduced= panda.read_json('new_ds/lr_00001/adam_hist.json')
+    hist_dict= {'lr=0.0001': history_base, 'lr=0.00001': history_lr_reduced}
+    resplot.plot_models(hist_dict, 'accuracy', max_x=101)
     #train_vgg('vgg_test', 0.000001, 60)
    # test_data = datalib.load_dataset(TEST_PATH)
     #eval_single_model(test_data, path='new_ds/inception_v2/save_at_79.h5')
-    resplot.plot_history('new_ds/inception_v2/adam_hist.json', max_x=101, interval=5)
-   # continue_training(80, 100, 'new_ds/inception_v2/save_at_80.h5', 'new_ds/inception_v2/save_at_{epoch}.h5',
-    #                  hist_path='new_ds/inception_v2/adam_hist.json')
+
+    #resplot.plot_history('new_ds/lr_00001/adam_hist.json', max_x=201, interval=10)
+    #continue_training(100, 200, 'new_ds/lr_00001/save_at_100.h5', 'new_ds/lr_00001/save_at_{epoch}.h5',
+     #                 hist_path='new_ds/lr_00001/adam_hist.json')
     # train_vgg()
     # datalib.load_dataset_with_visualization(TRAINING_PATH)
     # datalib.split_data(input_data='E:/pycharmProjects/DiplomaThesis/dataset2/train',
