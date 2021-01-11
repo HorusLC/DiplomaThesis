@@ -28,7 +28,7 @@ def train_vgg(experiment_folder, learning_rate, num_epochs):
     model = mdl.model_create_vgg16(input_shape=(128, 128, 3))
     model.summary()
     folder_path = datalib.init_model_folder(dir_name=experiment_folder,
-                                            optimizer='sgd',
+                                            optimizer='adam',
                                             lr=str(learning_rate),
                                             image_dimensions='128,128,3',
                                             architecture=inspect_tool.getsource(
@@ -41,7 +41,7 @@ def train_vgg(experiment_folder, learning_rate, num_epochs):
         # keras.callbacks.EarlyStopping(monitor='val_loss', patience=4, min_delta=0.005, mode='auto')
     ]
     model.compile(
-        optimizer=keras.optimizers.SGD(learning_rate=learning_rate),
+        optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
         loss="binary_crossentropy",
         metrics=["accuracy", "AUC",
                  keras.metrics.TruePositives(),
@@ -182,14 +182,21 @@ def train_inception(experiment_folder, learning_rate, num_epochs):
 
 if __name__ == '__main__':
     keras.backend.clear_session()
+    datalib.load_dataset_with_visualization('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train')
+    #datalib.visualize_partition()
+    #datalib.split_data('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train',output_folder='k', data_ratio= (0.1,0.9))
+    #datalib.show_files('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train/PNEUMONIA')
+    #datalib.count_class_files(path_normal='E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train/NORMAL',
+     #                         path_pneumonia='E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train/PNEUMONIA')
     #train_inception('lr_00001', 0.00001, 100)
+    #train_vgg('vgg_reg_00001',0.000001, 100)
     #history_complex = panda.read_json('new_ds/inception_v15big/adam_hist.json')
-    history_base = panda.read_json('new_ds/inception_v2/adam_hist.json')
+    #history_base = panda.read_json('new_ds/inception_v2/adam_hist.json')
     #history_small = panda.read_json('new_ds/inception_v14small/adam_hist.json')
     #hist_dict = {'complex': history_complex, 'simple': history_small}
-    history_lr_reduced= panda.read_json('new_ds/lr_00001/adam_hist.json')
-    hist_dict= {'lr=0.0001': history_base, 'lr=0.00001': history_lr_reduced}
-    resplot.plot_models(hist_dict, 'accuracy', max_x=101)
+    #history_lr_reduced= panda.read_json('new_ds/lr_00001/adam_hist.json')
+    #hist_dict= {'lr=0.0001': history_base, 'lr=0.00001': history_lr_reduced}
+    #resplot.plot_models(hist_dict, 'accuracy', max_x=101)
     #train_vgg('vgg_test', 0.000001, 60)
    # test_data = datalib.load_dataset(TEST_PATH)
     #eval_single_model(test_data, path='new_ds/inception_v2/save_at_79.h5')
