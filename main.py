@@ -11,7 +11,7 @@ import pandas as panda
 from keras.callbacks import TensorBoard
 import inspect as inspect_tool
 import tensorflow as tf
-
+import sklearn.metrics as sk_metrics
 # TRAINING_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/train' old paths
 # TEST_PATH = 'E:/kaggle/chest_xray_imgs_pneumonia/archive/chest_xray/test' old paths
 TRAINING_PATH = 'E:/pycharmProjects/DiplomaThesis/dataset/train'
@@ -100,10 +100,13 @@ def train_model_on_data():
     datalib.plot_history_loss_func(history)
 
 
-def eval_single_model(test_data, path):
+def eval_single_model(ts_data, path):
     mod = keras.models.load_model(path)
-    mod.summary()
-    print(str(mod.evaluate(test_data, verbose=1)))
+    results = mod.evaluate(ts_data,verbose=1)
+    datalib.calculate_precision_sensitivity(tp=results[3],
+                                            fp=results[4],
+                                            tn=results[5],
+                                            fn=results[6])
 
 
 def eval_model(test_data):
@@ -182,7 +185,7 @@ def train_inception(experiment_folder, learning_rate, num_epochs):
 
 if __name__ == '__main__':
     keras.backend.clear_session()
-    datalib.load_dataset_with_visualization('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train')
+    #datalib.load_dataset_with_visualization('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train')
     #datalib.visualize_partition()
     #datalib.split_data('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train',output_folder='k', data_ratio= (0.1,0.9))
     #datalib.show_files('E:/kaggle/chest_xray_imgs_pneumonia/cpy/dataset/train/PNEUMONIA')
@@ -198,10 +201,11 @@ if __name__ == '__main__':
     #hist_dict= {'lr=0.0001': history_base, 'lr=0.00001': history_lr_reduced}
     #resplot.plot_models(hist_dict, 'accuracy', max_x=101)
     #train_vgg('vgg_test', 0.000001, 60)
-   # test_data = datalib.load_dataset(TEST_PATH)
-    #eval_single_model(test_data, path='new_ds/inception_v2/save_at_79.h5')
+    test_data = datalib.load_dataset(TEST_PATH)
+    eval_single_model(test_data, path='new_ds/inception_v2/save_at_79.h5')
 
-    #resplot.plot_history('new_ds/lr_00001/adam_hist.json', max_x=201, interval=10)
+    #sk_metrics.plot_confusion_matrix()
+    #resplot.plot_history('new_ds/inception_v2/adam_hist.json', max_x=101, interval=5)
     #continue_training(100, 200, 'new_ds/lr_00001/save_at_100.h5', 'new_ds/lr_00001/save_at_{epoch}.h5',
      #                 hist_path='new_ds/lr_00001/adam_hist.json')
     # train_vgg()

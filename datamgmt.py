@@ -166,11 +166,22 @@ def visualize_partition():
     plotter.show()
 
 
+def calculate_precision_sensitivity(tp,fp,tn,fn):
+    precision = tp/(tp+fp)
+    sensitivity = tp/(tp+fn)
+    specificity = tn/(tn+fp)
+    f1 = 2*tp/(2*tp+fp+fn)
+    print(f'specificity on test data is {specificity}')
+    print(f'precision on test data is {precision}')
+    print(f'sensitivity on test data is {sensitivity}')
+    print(f'f1 score is {f1}')
+
+
 def load_dataset(path):
     loaded = krs.preprocessing.image_dataset_from_directory(
         path,
         labels='inferred',
-        color_mode='rgb',
+        color_mode='grayscale',
         batch_size=batch_size,
         image_size=image_size,
         shuffle=True,
